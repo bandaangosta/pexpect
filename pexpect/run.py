@@ -5,7 +5,8 @@ from .exceptions import EOF, TIMEOUT
 from .pty_spawn import spawn
 
 def run(command, timeout=30, withexitstatus=False, events=None,
-        extra_args=None, logfile=None, cwd=None, env=None, **kwargs):
+        extra_args=None, logfile=None, logfile_read=None, logfile_send=None,
+        cwd=None, env=None, **kwargs):
 
     '''
     This function runs the given command; waits for it to finish; then
@@ -67,7 +68,7 @@ def run(command, timeout=30, withexitstatus=False, events=None,
     contains patterns and responses. Whenever one of the patterns is seen
     in the command output, run() will send the associated response string.
     So, run() in the above example can be also written as:
-    
+
         run("mencoder dvd://1 -o video.avi -oac copy -ovc copy",
             events=[(TIMEOUT,print_ticks)], timeout=5)
 
@@ -98,6 +99,8 @@ def run(command, timeout=30, withexitstatus=False, events=None,
     else:
         child = spawn(command, timeout=timeout, maxread=2000, logfile=logfile,
                 cwd=cwd, env=env, **kwargs)
+    child.logfile_read = logfile_read
+    child.logfile_send = logfile_send
     if isinstance(events, list):
         patterns= [x for x,y in events]
         responses = [y for x,y in events]
